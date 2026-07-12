@@ -1057,3 +1057,18 @@ with open(
 
 print("New SaaS-style homepage created successfully.")
 print(APP_FILE_PATH)
+
+
+import py_compile
+
+try:
+    py_compile.compile(
+        APP_FILE_PATH,
+        doraise=True
+    )
+
+    print("✓ New app.py syntax validation passed.")
+
+except py_compile.PyCompileError as error:
+    print("✗ Syntax validation failed.")
+    print(error)

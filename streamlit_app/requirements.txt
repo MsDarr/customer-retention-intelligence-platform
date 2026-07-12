@@ -1,4 +1,9 @@
-streamlit
+REQUIREMENTS_PATH = os.path.join(
+    APP_PATH,
+    "requirements.txt"
+)
+
+requirements_content = """streamlit>=1.36
 pandas
 numpy
 scikit-learn
@@ -9,3 +14,13 @@ matplotlib
 seaborn
 openpyxl
 xlsxwriter
+"""
+
+with open(
+    REQUIREMENTS_PATH,
+    "w",
+    encoding="utf-8"
+) as file:
+    file.write(requirements_content)
+
+print("requirements.txt updated.")
