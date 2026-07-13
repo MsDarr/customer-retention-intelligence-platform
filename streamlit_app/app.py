@@ -1,13 +1,3 @@
-# ============================================================
-# Redesign Main Streamlit Application
-# ============================================================
-
-APP_FILE_PATH = os.path.join(
-    APP_PATH,
-    "app.py"
-)
-
-app_content = r'''
 import pandas as pd
 import plotly.express as px
 import streamlit as st
@@ -20,458 +10,831 @@ from pages import (
     recommendations,
     reports,
     revenue_intelligence,
-    risk_scoring
+    risk_scoring,
 )
 
 from utils.data_loader import (
     load_model_assets,
-    load_predictions
+    load_predictions,
 )
 
 
 # ============================================================
-# Page Configuration
+# PAGE CONFIGURATION
 # ============================================================
 
 st.set_page_config(
     page_title="Retention Intelligence",
-    page_icon="🧠",
+    page_icon="📈",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="expanded",
 )
 
 
 # ============================================================
-# Global Styling
+# GLOBAL STYLING
 # ============================================================
 
-def apply_custom_style():
+def apply_custom_style() -> None:
+    """Apply the global visual design for the Streamlit app."""
 
     st.markdown(
         """
-        <style>
+<style>
 
-        /* Main application */
-        .stApp {
-            background:
-                radial-gradient(
-                    circle at 80% 0%,
-                    rgba(76, 29, 149, 0.18),
-                    transparent 30%
-                ),
-                radial-gradient(
-                    circle at 40% 10%,
-                    rgba(37, 99, 235, 0.10),
-                    transparent 30%
-                ),
-                #07101f;
-            color: #f8fafc;
-        }
+/* =========================================================
+   GLOBAL APPLICATION
+   ========================================================= */
 
-        /* Main page spacing */
-        .block-container {
-            max-width: 1450px;
-            padding-top: 1.4rem;
-            padding-bottom: 3rem;
-        }
+.stApp {
+    background:
+        radial-gradient(
+            circle at 80% 0%,
+            rgba(76, 29, 149, 0.16),
+            transparent 30%
+        ),
+        radial-gradient(
+            circle at 40% 10%,
+            rgba(37, 99, 235, 0.08),
+            transparent 30%
+        ),
+        #07101f;
 
-        /* Sidebar */
-        [data-testid="stSidebar"] {
-            background:
-                linear-gradient(
-                    180deg,
-                    #050b17 0%,
-                    #081225 100%
-                );
-            border-right: 1px solid #25304a;
-        }
+    color: #f8fafc;
+}
 
-        [data-testid="stSidebar"] > div:first-child {
-            padding-top: 1rem;
-        }
+.block-container {
+    max-width: 1450px;
+    padding-top: 1.6rem;
+    padding-bottom: 3rem;
+}
 
-        [data-testid="stSidebar"] * {
-            color: #e2e8f0;
-        }
 
-        /* Navigation links */
-        [data-testid="stSidebarNav"] a {
-            border-radius: 10px;
-            margin-bottom: 0.25rem;
-        }
+/* =========================================================
+   SIDEBAR
+   ========================================================= */
 
-        [data-testid="stSidebarNav"] a:hover {
-            background: rgba(79, 70, 229, 0.20);
-        }
+[data-testid="stSidebar"] {
+    background:
+        linear-gradient(
+            180deg,
+            #050b17 0%,
+            #071225 60%,
+            #061020 100%
+        );
 
-        /* Hero */
-        .hero {
-            position: relative;
-            overflow: hidden;
-            min-height: 315px;
-            padding: 2.4rem 2.6rem;
-            margin-bottom: 1rem;
-            border: 1px solid #283550;
-            border-radius: 22px;
-            background:
-                radial-gradient(
-                    circle at 83% 46%,
-                    rgba(37, 99, 235, 0.32),
-                    transparent 23%
-                ),
-                radial-gradient(
-                    circle at 76% 45%,
-                    rgba(124, 58, 237, 0.30),
-                    transparent 38%
-                ),
-                linear-gradient(
-                    135deg,
-                    #101a31 0%,
-                    #0c1630 47%,
-                    #211153 100%
-                );
-            box-shadow: 0 22px 55px rgba(0, 0, 0, 0.30);
-        }
+    border-right: 1px solid rgba(99, 102, 241, 0.20);
+}
 
-        .hero::after {
-            content: "🧠";
-            position: absolute;
-            right: 7%;
-            top: 14%;
-            font-size: 9.5rem;
-            filter:
-                drop-shadow(0 0 24px #2563eb)
-                drop-shadow(0 0 48px #7c3aed);
-            opacity: 0.94;
-        }
+[data-testid="stSidebar"] > div:first-child {
+    padding-top: 1rem;
+}
 
-        .welcome {
-            color: #a78bfa;
-            font-size: 0.95rem;
-            font-weight: 700;
-            margin-bottom: 0.8rem;
-        }
+[data-testid="stSidebar"] * {
+    color: #e2e8f0;
+}
 
-        .hero-title {
-            max-width: 720px;
-            font-size: 3rem;
-            line-height: 1.08;
-            font-weight: 850;
-            letter-spacing: -0.045em;
-            margin-bottom: 1rem;
-        }
 
-        .gradient-text {
-            background:
-                linear-gradient(
-                    90deg,
-                    #60a5fa,
-                    #8b5cf6,
-                    #c084fc
-                );
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+/* Sidebar brand generated through CSS */
 
-        .hero-description {
-            max-width: 620px;
-            color: #cbd5e1;
-            font-size: 1.06rem;
-            line-height: 1.7;
-        }
+[data-testid="stSidebarNav"]::before {
+    content:
+        "◈"
+        "\\A"
+        "RETENTION INTELLIGENCE"
+        "\\A"
+        "AI-POWERED PLATFORM";
 
-        /* Section title */
-        .section-header {
-            margin-top: 1.3rem;
-            margin-bottom: 0.9rem;
-        }
+    white-space: pre-line;
+    display: block;
 
-        .section-title {
-            font-size: 1.35rem;
-            font-weight: 800;
-            margin: 0;
-        }
+    margin: 0.4rem 0.7rem 1.3rem;
+    padding: 1rem 0.8rem 1.35rem;
 
-        .section-caption {
-            color: #94a3b8;
-            font-size: 0.88rem;
-            margin-top: 0.15rem;
-        }
+    border-bottom: 1px solid rgba(100, 116, 139, 0.26);
 
-        /* KPI cards */
-        .kpi-card {
-            min-height: 150px;
-            padding: 1.25rem;
-            border-radius: 17px;
-            border: 1px solid #293652;
-            background:
-                linear-gradient(
-                    145deg,
-                    rgba(25, 37, 63, 0.96),
-                    rgba(10, 19, 36, 0.98)
-                );
-            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.22);
-        }
+    color: #f8fafc;
+    text-align: center;
 
-        .kpi-top {
-            display: flex;
-            align-items: center;
-            gap: 0.7rem;
-        }
+    font-size: 0.94rem;
+    font-weight: 850;
+    line-height: 1.6;
+    letter-spacing: 0.055em;
 
-        .kpi-icon {
-            width: 44px;
-            height: 44px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 14px;
-            font-size: 1.45rem;
-            background:
-                linear-gradient(
-                    135deg,
-                    #4f46e5,
-                    #7c3aed
-                );
-        }
+    background:
+        radial-gradient(
+            circle at 50% 18%,
+            rgba(99, 102, 241, 0.22),
+            transparent 30%
+        );
+}
 
-        .kpi-label {
-            color: #cbd5e1;
-            font-size: 0.83rem;
-            font-weight: 600;
-        }
 
-        .kpi-value {
-            margin-top: 0.75rem;
-            font-size: 1.8rem;
-            font-weight: 850;
-        }
+/* Navigation links */
 
-        .kpi-caption {
-            margin-top: 0.35rem;
-            color: #94a3b8;
-            font-size: 0.78rem;
-        }
+[data-testid="stSidebarNav"] ul {
+    gap: 0.20rem;
+}
 
-        /* Module cards */
-        .module-card {
-            min-height: 228px;
-            padding: 1.2rem;
-            border-radius: 17px;
-            border: 1px solid #293652;
-            background:
-                linear-gradient(
-                    160deg,
-                    rgba(24, 37, 62, 0.98),
-                    rgba(9, 18, 34, 0.98)
-                );
-            transition:
-                transform 0.20s ease,
-                border-color 0.20s ease,
-                box-shadow 0.20s ease;
-        }
+[data-testid="stSidebarNav"] a {
+    min-height: 43px;
+    padding: 0.60rem 0.8rem;
 
-        .module-card:hover {
-            transform: translateY(-4px);
-            border-color: #6366f1;
-            box-shadow:
-                0 15px 32px rgba(79, 70, 229, 0.15);
-        }
+    border: 1px solid transparent;
+    border-radius: 10px;
 
-        .module-icon {
-            font-size: 2.1rem;
-            margin-bottom: 0.8rem;
-        }
+    color: #cbd5e1;
+    font-weight: 620;
 
-        .module-title {
-            font-size: 1rem;
-            font-weight: 800;
-            min-height: 48px;
-        }
+    transition:
+        background 0.18s ease,
+        border-color 0.18s ease,
+        transform 0.18s ease;
+}
 
-        .module-description {
-            color: #aab8cc;
-            font-size: 0.80rem;
-            line-height: 1.55;
-            min-height: 78px;
-        }
+[data-testid="stSidebarNav"] a:hover {
+    transform: translateX(3px);
 
-        .module-action {
-            margin-top: 0.7rem;
-            color: #818cf8;
-            font-size: 0.80rem;
-            font-weight: 700;
-        }
+    border-color: rgba(99, 102, 241, 0.30);
 
-        /* Chart and table containers */
-        [data-testid="stPlotlyChart"] {
-            padding: 0.25rem;
-            border: 1px solid #293652;
-            border-radius: 17px;
-            background: rgba(10, 19, 36, 0.92);
-        }
+    background:
+        linear-gradient(
+            90deg,
+            rgba(37, 99, 235, 0.16),
+            rgba(124, 58, 237, 0.16)
+        );
+}
 
-        [data-testid="stDataFrame"] {
-            border: 1px solid #293652;
-            border-radius: 16px;
-            overflow: hidden;
-        }
+[data-testid="stSidebarNav"] a[aria-current="page"] {
+    color: #ffffff;
 
-        /* CTA */
-        .cta-box {
-            margin-top: 1.5rem;
-            padding: 1.5rem 1.8rem;
-            border-radius: 18px;
-            border: 1px solid #4f46e5;
-            background:
-                linear-gradient(
-                    100deg,
-                    rgba(49, 46, 129, 0.82),
-                    rgba(76, 29, 149, 0.78)
-                );
-        }
+    border-color: rgba(129, 140, 248, 0.40);
 
-        .cta-title {
-            font-size: 1.3rem;
-            font-weight: 850;
-        }
+    background:
+        linear-gradient(
+            90deg,
+            rgba(51, 65, 85, 0.95),
+            rgba(71, 85, 105, 0.85)
+        );
+}
 
-        .cta-text {
-            color: #d8dffc;
-            margin-top: 0.3rem;
-        }
+[data-testid="stSidebarNav"] svg {
+    width: 19px;
+    height: 19px;
+}
 
-        /* Page link buttons */
-        [data-testid="stPageLink"] a {
-            border-radius: 11px;
-            border: 1px solid #3b4a69;
-            background:
-                linear-gradient(
-                    135deg,
-                    #4338ca,
-                    #6d28d9
-                );
-            color: white !important;
-            font-weight: 750;
-        }
 
-        /* Footer */
-        .footer {
-            margin-top: 2rem;
-            padding: 1.4rem 0;
-            border-top: 1px solid #26334d;
-            color: #8190a8;
-            font-size: 0.8rem;
-            text-align: center;
-        }
+/* Sidebar message */
 
-        /* Mobile */
-        @media (max-width: 900px) {
+[data-testid="stSidebarNav"]::after {
+    content: "Smarter decisions. Stronger relationships.";
 
-            .hero {
-                min-height: 430px;
-                padding: 1.7rem;
-            }
+    display: block;
 
-            .hero::after {
-                top: 52%;
-                right: 31%;
-                font-size: 7rem;
-            }
+    margin: 1.5rem 0.9rem 0;
+    padding: 0.95rem;
 
-            .hero-title {
-                font-size: 2.15rem;
-            }
-        }
+    border: 1px solid rgba(99, 102, 241, 0.24);
+    border-radius: 14px;
 
-        </style>
+    color: #94a3b8;
+    text-align: center;
+
+    font-size: 0.72rem;
+    line-height: 1.55;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(30, 41, 59, 0.60),
+            rgba(15, 23, 42, 0.82)
+        );
+}
+
+
+/* =========================================================
+   TEXT-ONLY HERO
+   ========================================================= */
+
+.hero-shell {
+    position: relative;
+    overflow: hidden;
+
+    min-height: 330px;
+    padding: 3rem 3.2rem;
+
+    border: 1px solid rgba(99, 102, 241, 0.30);
+    border-radius: 26px;
+
+    background:
+        radial-gradient(
+            circle at 86% 15%,
+            rgba(124, 58, 237, 0.22),
+            transparent 34%
+        ),
+        linear-gradient(
+            135deg,
+            #0a1328 0%,
+            #0d1733 52%,
+            #241052 100%
+        );
+
+    box-shadow:
+        0 24px 60px rgba(0, 0, 0, 0.32),
+        inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.hero-shell::after {
+    content: "";
+
+    position: absolute;
+    width: 440px;
+    height: 440px;
+
+    right: -130px;
+    top: -170px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(96, 165, 250, 0.16),
+            rgba(124, 58, 237, 0.09) 45%,
+            transparent 72%
+        );
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+}
+
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+
+    width: fit-content;
+
+    padding: 0.50rem 0.90rem;
+    margin-bottom: 1.35rem;
+
+    border: 1px solid rgba(129, 140, 248, 0.40);
+    border-radius: 999px;
+
+    background: rgba(49, 46, 129, 0.18);
+
+    color: #a5b4fc;
+
+    font-size: 0.74rem;
+    font-weight: 760;
+    letter-spacing: 0.08em;
+}
+
+.hero-title {
+    max-width: 980px;
+    margin: 0;
+
+    color: #f8fafc;
+
+    font-size: clamp(2.6rem, 4.8vw, 4.8rem);
+    font-weight: 900;
+
+    line-height: 1.03;
+    letter-spacing: -0.055em;
+}
+
+.hero-gradient {
+    background:
+        linear-gradient(
+            90deg,
+            #3b82f6 0%,
+            #6366f1 40%,
+            #a855f7 74%,
+            #d946ef 100%
+        );
+
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hero-description {
+    max-width: 760px;
+
+    margin-top: 1.5rem;
+    padding-left: 1.15rem;
+
+    border-left: 3px solid #7c3aed;
+
+    color: #cbd5e1;
+
+    font-size: 1.06rem;
+    line-height: 1.75;
+}
+
+.hero-buttons {
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+
+/* =========================================================
+   SECTION HEADERS
+   ========================================================= */
+
+.section-header {
+    margin-top: 1.6rem;
+    margin-bottom: 0.9rem;
+}
+
+.section-title {
+    margin: 0;
+
+    color: #f8fafc;
+
+    font-size: 1.35rem;
+    font-weight: 820;
+}
+
+.section-caption {
+    margin-top: 0.15rem;
+
+    color: #94a3b8;
+
+    font-size: 0.87rem;
+}
+
+
+/* =========================================================
+   KPI CARDS
+   ========================================================= */
+
+.kpi-card {
+    min-height: 150px;
+    padding: 1.2rem;
+
+    border: 1px solid #293652;
+    border-radius: 17px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(25, 37, 63, 0.96),
+            rgba(10, 19, 36, 0.98)
+        );
+
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.20);
+
+    transition:
+        transform 0.18s ease,
+        border-color 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+.kpi-card:hover {
+    transform: translateY(-3px);
+
+    border-color: rgba(99, 102, 241, 0.55);
+
+    box-shadow:
+        0 16px 38px rgba(79, 70, 229, 0.14);
+}
+
+.kpi-top {
+    display: flex;
+    align-items: center;
+    gap: 0.70rem;
+}
+
+.kpi-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 44px;
+    height: 44px;
+
+    border-radius: 13px;
+
+    font-size: 1.35rem;
+
+    background:
+        linear-gradient(
+            135deg,
+            #4f46e5,
+            #7c3aed
+        );
+}
+
+.kpi-label {
+    color: #cbd5e1;
+
+    font-size: 0.81rem;
+    font-weight: 650;
+}
+
+.kpi-value {
+    margin-top: 0.78rem;
+
+    color: #f8fafc;
+
+    font-size: 1.82rem;
+    font-weight: 860;
+}
+
+.kpi-caption {
+    margin-top: 0.35rem;
+
+    color: #94a3b8;
+
+    font-size: 0.77rem;
+    line-height: 1.45;
+}
+
+
+/* =========================================================
+   MODULE CARDS
+   ========================================================= */
+
+.module-card {
+    min-height: 225px;
+    padding: 1.15rem;
+
+    border: 1px solid #293652;
+    border-radius: 17px;
+
+    background:
+        linear-gradient(
+            160deg,
+            rgba(24, 37, 62, 0.98),
+            rgba(9, 18, 34, 0.98)
+        );
+
+    transition:
+        transform 0.20s ease,
+        border-color 0.20s ease,
+        box-shadow 0.20s ease;
+}
+
+.module-card:hover {
+    transform: translateY(-4px);
+
+    border-color: #6366f1;
+
+    box-shadow:
+        0 15px 32px rgba(79, 70, 229, 0.15);
+}
+
+.module-icon {
+    margin-bottom: 0.8rem;
+
+    font-size: 1.9rem;
+}
+
+.module-title {
+    min-height: 48px;
+
+    color: #f8fafc;
+
+    font-size: 0.96rem;
+    font-weight: 800;
+}
+
+.module-description {
+    min-height: 78px;
+
+    color: #aab8cc;
+
+    font-size: 0.78rem;
+    line-height: 1.55;
+}
+
+.module-action {
+    margin-top: 0.7rem;
+
+    color: #818cf8;
+
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   CHARTS AND TABLES
+   ========================================================= */
+
+[data-testid="stPlotlyChart"] {
+    padding: 0.20rem;
+
+    border: 1px solid #293652;
+    border-radius: 17px;
+
+    background: rgba(10, 19, 36, 0.92);
+}
+
+[data-testid="stDataFrame"] {
+    overflow: hidden;
+
+    border: 1px solid #293652;
+    border-radius: 16px;
+}
+
+
+/* =========================================================
+   PAGE LINKS
+   ========================================================= */
+
+[data-testid="stPageLink"] a {
+    min-height: 50px;
+
+    justify-content: center;
+
+    border: 1px solid #3b4a69;
+    border-radius: 11px;
+
+    color: white !important;
+
+    font-weight: 750;
+
+    background:
+        linear-gradient(
+            135deg,
+            #4338ca,
+            #6d28d9
+        );
+
+    transition:
+        transform 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+[data-testid="stPageLink"] a:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 12px 30px rgba(79, 70, 229, 0.28);
+}
+
+
+/* =========================================================
+   CALL TO ACTION
+   ========================================================= */
+
+.cta-box {
+    margin-top: 1.6rem;
+    padding: 1.55rem 1.8rem;
+
+    border: 1px solid rgba(129, 140, 248, 0.38);
+    border-radius: 18px;
+
+    background:
+        linear-gradient(
+            105deg,
+            rgba(49, 46, 129, 0.85),
+            rgba(76, 29, 149, 0.82)
+        );
+
+    box-shadow:
+        0 16px 42px rgba(0, 0, 0, 0.24);
+}
+
+.cta-title {
+    color: #ffffff;
+
+    font-size: 1.28rem;
+    font-weight: 850;
+}
+
+.cta-text {
+    margin-top: 0.35rem;
+
+    color: #d8dffc;
+
+    line-height: 1.6;
+}
+
+.cta-link-space {
+    height: 16px;
+}
+
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.footer {
+    margin-top: 2rem;
+    padding: 1.4rem 0;
+
+    border-top: 1px solid #26334d;
+
+    color: #8190a8;
+
+    font-size: 0.77rem;
+    text-align: center;
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+    .block-container {
+        padding-top: 1rem;
+    }
+
+    .hero-shell {
+        min-height: auto;
+        padding: 2rem;
+    }
+
+    .hero-title {
+        font-size: 2.35rem;
+    }
+
+    .hero-description {
+        font-size: 0.96rem;
+    }
+
+    .kpi-card {
+        min-height: 135px;
+    }
+}
+
+</style>
         """,
-        unsafe_allow_html=True
+        unsafe_allow_html=True,
     )
 
 
 # ============================================================
-# Helper Components
+# HELPER COMPONENTS
 # ============================================================
 
-def metric_card(
-    icon,
-    label,
-    value,
-    caption
-):
+def section_header(title: str, caption: str) -> None:
+    """Render a page-section heading."""
 
     st.markdown(
         f"""
-        <div class="kpi-card">
-            <div class="kpi-top">
-                <div class="kpi-icon">{icon}</div>
-                <div class="kpi-label">{label}</div>
-            </div>
-            <div class="kpi-value">{value}</div>
-            <div class="kpi-caption">{caption}</div>
-        </div>
+<div class="section-header">
+    <div class="section-title">{title}</div>
+    <div class="section-caption">{caption}</div>
+</div>
         """,
-        unsafe_allow_html=True
+        unsafe_allow_html=True,
+    )
+
+
+def metric_card(
+    icon: str,
+    label: str,
+    value: str,
+    caption: str,
+) -> None:
+    """Render one KPI card."""
+
+    st.markdown(
+        f"""
+<div class="kpi-card">
+    <div class="kpi-top">
+        <div class="kpi-icon">{icon}</div>
+        <div class="kpi-label">{label}</div>
+    </div>
+
+    <div class="kpi-value">{value}</div>
+    <div class="kpi-caption">{caption}</div>
+</div>
+        """,
+        unsafe_allow_html=True,
     )
 
 
 def module_card(
-    icon,
-    title,
-    description,
-    action
-):
+    icon: str,
+    title: str,
+    description: str,
+    action: str,
+) -> None:
+    """Render one platform-module card."""
 
     st.markdown(
         f"""
-        <div class="module-card">
-            <div class="module-icon">{icon}</div>
-            <div class="module-title">{title}</div>
-            <div class="module-description">
-                {description}
-            </div>
-            <div class="module-action">
-                {action} →
-            </div>
-        </div>
+<div class="module-card">
+    <div class="module-icon">{icon}</div>
+    <div class="module-title">{title}</div>
+
+    <div class="module-description">
+        {description}
+    </div>
+
+    <div class="module-action">
+        {action} →
+    </div>
+</div>
         """,
-        unsafe_allow_html=True
+        unsafe_allow_html=True,
     )
 
 
-def section_header(
-    title,
-    caption
-):
+def get_model_accuracy(metadata: dict) -> float:
+    """Read model accuracy safely from metadata."""
+
+    metrics = metadata.get("metrics", {})
+
+    accuracy = (
+        metrics.get("Accuracy")
+        or metrics.get("accuracy")
+        or metadata.get("accuracy")
+        or 0
+    )
+
+    try:
+        accuracy = float(accuracy)
+    except (TypeError, ValueError):
+        return 0.0
+
+    if accuracy > 1:
+        accuracy = accuracy / 100
+
+    return accuracy
+
+
+# ============================================================
+# HOME PAGE HERO
+# ============================================================
+
+def render_home_hero() -> None:
+    """Render the text-only homepage hero."""
 
     st.markdown(
-        f"""
-        <div class="section-header">
-            <div class="section-title">{title}</div>
-            <div class="section-caption">{caption}</div>
+        """
+<div class="hero-shell">
+    <div class="hero-content">
+
+        <div class="hero-badge">
+            ✦ PREMIUM AI PLATFORM
         </div>
+
+        <h1 class="hero-title">
+            AI-Powered Customer
+            <br>
+            Retention
+            <span class="hero-gradient">
+                Intelligence Platform
+            </span>
+        </h1>
+
+        <div class="hero-description">
+            Predict customer churn, identify at-risk customers,
+            protect recurring revenue, and make faster decisions
+            using machine learning and business intelligence.
+        </div>
+
+    </div>
+</div>
         """,
-        unsafe_allow_html=True
+        unsafe_allow_html=True,
     )
+
+    st.markdown(
+        '<div class="hero-buttons"></div>',
+        unsafe_allow_html=True,
+    )
+
+    button_col1, button_col2, spacer = st.columns(
+        [1.25, 1.55, 3.3]
+    )
+
+    with button_col1:
+        st.page_link(
+            prediction_page,
+            label="Start Prediction",
+            icon=":material/rocket_launch:",
+            use_container_width=True,
+        )
+
+    with button_col2:
+        st.page_link(
+            executive_page,
+            label="Executive Dashboard",
+            icon=":material/analytics:",
+            use_container_width=True,
+        )
 
 
 # ============================================================
-# Home Page
+# HOME PAGE
 # ============================================================
 
-def render_home():
+def render_home() -> None:
+    """Render the main customer-retention homepage."""
 
-    data = load_predictions()
+    data = load_predictions().copy()
 
-    model, feature_names, metadata = (
-        load_model_assets()
-    )
-
-    metrics = metadata.get(
-        "metrics",
-        {}
-    )
+    model, feature_names, metadata = load_model_assets()
 
     total_customers = len(data)
 
@@ -488,89 +851,39 @@ def render_home():
         .sum()
     )
 
-    model_accuracy = metrics.get(
-        "Accuracy",
-        0
-    )
+    model_accuracy = get_model_accuracy(metadata)
 
     model_name = metadata.get(
         "model_name",
-        type(model).__name__
+        type(model).__name__,
     )
 
     # --------------------------------------------------------
     # Hero
     # --------------------------------------------------------
 
-    st.markdown(
-        """
-        <div class="hero">
-            <div class="welcome">
-                ✦ Welcome to Retention Intelligence
-            </div>
-
-            <div class="hero-title">
-                AI-Powered Customer
-                <span class="gradient-text">
-                    Retention Intelligence
-                </span>
-            </div>
-
-            <div class="hero-description">
-                Predict customer churn, identify customers
-                at risk, protect revenue, and generate
-                intelligent retention strategies through
-                one unified business platform.
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-    action1, action2, spacer = st.columns(
-        [1.15, 1.25, 4]
-    )
-
-    with action1:
-
-        st.page_link(
-            prediction_page,
-            label="Start Prediction",
-            icon="🚀",
-            width="stretch"
-        )
-
-    with action2:
-
-        st.page_link(
-            executive_page,
-            label="Executive Dashboard",
-            icon="📊",
-            width="stretch"
-        )
+    render_home_hero()
 
     # --------------------------------------------------------
-    # KPIs
+    # KPI cards
     # --------------------------------------------------------
 
     section_header(
         "Live Business Metrics",
-        "Current customer portfolio and model performance"
+        "Current customer portfolio and model performance",
     )
 
     col1, col2, col3, col4 = st.columns(4)
 
     with col1:
-
         metric_card(
             "👥",
             "Total Customers",
             f"{total_customers:,}",
-            "Customer records analyzed"
+            "Customer records analyzed",
         )
 
     with col2:
-
         metric_card(
             "⚠️",
             "High-Risk Customers",
@@ -578,34 +891,32 @@ def render_home():
             (
                 f"{high_risk_customers / total_customers:.1%} "
                 "of the customer base"
-            )
+            ),
         )
 
     with col3:
-
         metric_card(
             "💰",
             "Revenue at Risk",
             f"${revenue_at_risk / 1_000_000:.2f}M",
-            "Probability-weighted annual exposure"
+            "Probability-weighted annual exposure",
         )
 
     with col4:
-
         metric_card(
             "🎯",
             "Model Accuracy",
             f"{model_accuracy:.1%}",
-            model_name
+            model_name,
         )
 
     # --------------------------------------------------------
-    # Modules
+    # Platform modules
     # --------------------------------------------------------
 
     section_header(
         "Platform Modules",
-        "AI and analytics tools for customer retention"
+        "AI and analytics tools for customer retention",
     )
 
     modules = [
@@ -613,122 +924,183 @@ def render_home():
             "🔮",
             "Customer Prediction",
             "Generate real-time churn probabilities for individual customer profiles.",
-            "Predict Now"
+            "Predict Now",
         ),
         (
             "🛡️",
             "Risk Scoring",
             "Identify, rank, and prioritize customers according to churn risk.",
-            "View Risk Scores"
+            "View Risk Scores",
         ),
         (
             "🤖",
             "AI Recommendations",
-            "Generate personalized retention actions, offers, and communication channels.",
-            "Get Recommendations"
+            "Generate personalized retention actions offers, and communication channels.",
+            "Get Recommendations",
         ),
         (
             "💹",
             "Revenue Intelligence",
             "Estimate revenue exposure, expected loss, and potential recovery.",
-            "Explore Revenue"
+            "Explore Revenue",
         ),
         (
             "📈",
             "Executive Dashboard",
-            "Review high-level business KPIs and customer-retention performance.",
-            "View Dashboard"
+            "Review business KPIs and customer-retention performance.",
+            "View Dashboard",
         ),
         (
             "📄",
             "Reports",
             "Preview and download operational customer-intelligence reports.",
-            "View Reports"
-        )
+            "View Reports",
+        ),
     ]
 
     module_columns = st.columns(6)
 
     for column, module in zip(
         module_columns,
-        modules
+        modules,
     ):
-
         with column:
-
             module_card(*module)
+# ---------------------------------------------------------------------
+# Platform modules CSS
+# ---------------------------------------------------------------------
+
+    st.markdown(
+    """
+<style>
+.module-card {
+    min-height: 290px;
+    padding: 22px 16px;
+    border: 1px solid rgba(108, 142, 204, 0.25);
+    border-radius: 18px;
+    background: rgba(23, 39, 67, 0.92);
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+.module-icon {
+    font-size: 30px;
+    margin-bottom: 20px;
+}
+
+.module-title {
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.35;
+    margin-bottom: 20px;
+}
+
+.module-description {
+    color: #aebbd1;
+    font-size: 13px;
+    line-height: 1.6;
+    flex-grow: 1;
+}
+
+.module-action {
+    color: #8ea7ff;
+    font-size: 13px;
+    font-weight: 700;
+    margin-top: 20px;
+}
+</style>
+""",
+    unsafe_allow_html=True,
+)
+
 
     # --------------------------------------------------------
-    # Business Insights
+    # Key business insights
     # --------------------------------------------------------
 
     section_header(
         "Key Business Insights",
-        "Overview of churn, risk, and revenue exposure"
+        "Overview of churn, risk, and revenue exposure",
     )
 
     chart1, chart2, chart3 = st.columns(3)
 
+    # Churn chart
     with chart1:
 
-        churn_column = (
-            "ActualChurnLabel"
-            if "ActualChurnLabel" in data.columns
-            else "PredictedChurnLabel"
-        )
+        if "ActualChurnLabel" in data.columns:
+            churn_column = "ActualChurnLabel"
 
-        churn_summary = (
-            data[churn_column]
-            .value_counts()
-            .reset_index()
-        )
+        elif "PredictedChurnLabel" in data.columns:
+            churn_column = "PredictedChurnLabel"
 
-        churn_summary.columns = [
-            "Customer Status",
-            "Customers"
-        ]
+        elif "PredictedChurnClass" in data.columns:
+            churn_column = "PredictedChurnClass"
 
-        churn_figure = px.pie(
-            churn_summary,
-            names="Customer Status",
-            values="Customers",
-            hole=0.64,
-            title="Churn Distribution",
-            color="Customer Status",
-            color_discrete_sequence=[
-                "#22c55e",
-                "#ef4444"
-            ]
-        )
+        else:
+            churn_column = None
 
-        churn_figure.update_layout(
-            template="plotly_dark",
-            paper_bgcolor="rgba(0,0,0,0)",
-            plot_bgcolor="rgba(0,0,0,0)",
-            margin=dict(
-                l=25,
-                r=25,
-                t=55,
-                b=25
-            ),
-            legend=dict(
-                orientation="h",
-                y=-0.08
+        if churn_column:
+
+            churn_summary = (
+                data[churn_column]
+                .value_counts()
+                .reset_index()
             )
-        )
 
-        st.plotly_chart(
-            churn_figure,
-            use_container_width=True
-        )
+            churn_summary.columns = [
+                "Customer Status",
+                "Customers",
+            ]
 
+            churn_figure = px.pie(
+                churn_summary,
+                names="Customer Status",
+                values="Customers",
+                hole=0.64,
+                title="Churn Distribution",
+                color_discrete_sequence=[
+                    "#22c55e",
+                    "#ef4444",
+                ],
+            )
+
+            churn_figure.update_layout(
+                template="plotly_dark",
+                paper_bgcolor="rgba(0,0,0,0)",
+                plot_bgcolor="rgba(0,0,0,0)",
+                margin=dict(
+                    l=25,
+                    r=25,
+                    t=55,
+                    b=25,
+                ),
+                legend=dict(
+                    orientation="h",
+                    y=-0.08,
+                ),
+            )
+
+            st.plotly_chart(
+                churn_figure,
+                use_container_width=True,
+            )
+
+        else:
+            st.info(
+                "No churn-label column is available."
+            )
+
+    # Risk chart
     with chart2:
 
         risk_order = [
             "Low",
             "Moderate",
             "High",
-            "Critical"
+            "Critical",
         ]
 
         risk_summary = (
@@ -736,14 +1108,14 @@ def render_home():
             .value_counts()
             .reindex(
                 risk_order,
-                fill_value=0
+                fill_value=0,
             )
             .reset_index()
         )
 
         risk_summary.columns = [
             "Risk Category",
-            "Customers"
+            "Customers",
         ]
 
         risk_figure = px.bar(
@@ -756,8 +1128,8 @@ def render_home():
                 "Low": "#22c55e",
                 "Moderate": "#eab308",
                 "High": "#f97316",
-                "Critical": "#ef4444"
-            }
+                "Critical": "#ef4444",
+            },
         )
 
         risk_figure.update_layout(
@@ -769,15 +1141,16 @@ def render_home():
                 l=25,
                 r=25,
                 t=55,
-                b=25
-            )
+                b=25,
+            ),
         )
 
         st.plotly_chart(
             risk_figure,
-            use_container_width=True
+            use_container_width=True,
         )
 
+    # Revenue chart
     with chart3:
 
         revenue_summary = data.copy()
@@ -794,14 +1167,10 @@ def render_home():
             revenue_summary
             .groupby(
                 "BusinessSegment",
-                observed=False
-            )[
-                "ExpectedAnnualRevenueLoss"
-            ]
+                observed=False,
+            )["ExpectedAnnualRevenueLoss"]
             .sum()
-            .sort_values(
-                ascending=True
-            )
+            .sort_values(ascending=True)
             .reset_index()
         )
 
@@ -816,8 +1185,8 @@ def render_home():
                 "#22c55e",
                 "#eab308",
                 "#f97316",
-                "#ef4444"
-            ]
+                "#ef4444",
+            ],
         )
 
         revenue_figure.update_layout(
@@ -829,22 +1198,22 @@ def render_home():
                 l=25,
                 r=25,
                 t=55,
-                b=25
-            )
+                b=25,
+            ),
         )
 
         st.plotly_chart(
             revenue_figure,
-            use_container_width=True
+            use_container_width=True,
         )
 
     # --------------------------------------------------------
-    # Priority Activity
+    # Priority customer table
     # --------------------------------------------------------
 
     section_header(
         "Priority Customer Activity",
-        "Customers requiring the greatest retention attention"
+        "Customers requiring the greatest retention attention",
     )
 
     preferred_columns = [
@@ -854,7 +1223,7 @@ def render_home():
         "RetentionPriority",
         "CustomerValueScore",
         "CustomerRiskScore",
-        "BusinessSegment"
+        "BusinessSegment",
     ]
 
     display_columns = [
@@ -867,7 +1236,7 @@ def render_home():
         data
         .sort_values(
             by="ChurnProbabilityPercent",
-            ascending=False
+            ascending=False,
         )
         .head(8)
     )
@@ -875,107 +1244,112 @@ def render_home():
     st.dataframe(
         priority_customers[display_columns],
         use_container_width=True,
-        hide_index=True
+        hide_index=True,
     )
 
     # --------------------------------------------------------
-    # CTA
+    # Call to action
     # --------------------------------------------------------
 
     st.markdown(
         """
-        <div class="cta-box">
-            <div class="cta-title">
-                🚀 Ready to reduce churn and protect revenue?
-            </div>
-            <div class="cta-text">
-                Use AI-powered customer intelligence to
-                identify risk early and take targeted action.
-            </div>
-        </div>
+<div class="cta-box">
+    <div class="cta-title">🚀 Ready to reduce churn and protect revenue?</div>
+    <div class="cta-text">Use AI-powered customer intelligence to identify risk early and take targeted action.</div>
+</div>
         """,
-        unsafe_allow_html=True
+        unsafe_allow_html=True,
     )
 
-    st.page_link(
-        prediction_page,
-        label="Get Started Now",
-        icon="✨",
-        width="stretch"
+    st.markdown(
+        '<div class="cta-link-space"></div>',
+        unsafe_allow_html=True,
     )
+
+    left, center, right = st.columns(
+        [1, 2, 1]
+    )
+
+    with center:
+        st.page_link(
+            prediction_page,
+            label="Get Started Now",
+            icon=":material/rocket_launch:",
+            use_container_width=True,
+        )
 
 
 # ============================================================
-# Navigation Pages
+# NAVIGATION PAGES
 # ============================================================
 
-prediction_page = st.Page(
-    prediction.render,
-    title="Customer Prediction",
-    icon="🔮",
-    url_path="prediction"
-)
-
-risk_page = st.Page(
-    risk_scoring.render,
-    title="Risk Scoring",
-    icon="⚠️",
-    url_path="risk-scoring"
-)
-
-recommendations_page = st.Page(
-    recommendations.render,
-    title="AI Recommendations",
-    icon="🤖",
-    url_path="recommendations"
-)
-
-revenue_page = st.Page(
-    revenue_intelligence.render,
-    title="Revenue Intelligence",
-    icon="💰",
-    url_path="revenue-intelligence"
+home_page = st.Page(
+    render_home,
+    title="Home",
+    icon=":material/home:",
+    default=True,
+    url_path="home",
 )
 
 dashboard_page = st.Page(
     dashboard.render,
     title="Dashboard",
-    icon="📊",
-    url_path="dashboard"
+    icon=":material/dashboard:",
+    url_path="dashboard",
+)
+
+prediction_page = st.Page(
+    prediction.render,
+    title="Customer Prediction",
+    icon=":material/person_search:",
+    url_path="prediction",
+)
+
+risk_page = st.Page(
+    risk_scoring.render,
+    title="Risk Scoring",
+    icon=":material/gpp_bad:",
+    url_path="risk-scoring",
+)
+
+recommendations_page = st.Page(
+    recommendations.render,
+    title="AI Recommendations",
+    icon=":material/psychology:",
+    url_path="recommendations",
+)
+
+revenue_page = st.Page(
+    revenue_intelligence.render,
+    title="Revenue Intelligence",
+    icon=":material/monitoring:",
+    url_path="revenue-intelligence",
 )
 
 executive_page = st.Page(
     executive_dashboard.render,
     title="Executive Dashboard",
-    icon="📈",
-    url_path="executive-dashboard"
+    icon=":material/analytics:",
+    url_path="executive-dashboard",
 )
 
 reports_page = st.Page(
     reports.render,
     title="Reports",
-    icon="📄",
-    url_path="reports"
+    icon=":material/description:",
+    url_path="reports",
 )
 
 about_page = st.Page(
     about.render,
     title="About",
-    icon="ℹ️",
-    url_path="about"
-)
-
-home_page = st.Page(
-    render_home,
-    title="Home",
-    icon="🏠",
-    default=True,
-    url_path="home"
+    icon=":material/info:",
+    url_path="about",
 )
 
 
 # ============================================================
-# Run Navigation
+# RUN APPLICATION
 # ============================================================
 
 apply_custom_style()
@@ -990,85 +1364,25 @@ navigation = st.navigation(
         revenue_page,
         executive_page,
         reports_page,
-        about_page
+        about_page,
     ],
-    position="sidebar"
+    position="sidebar",
 )
-
-with st.sidebar:
-
-    st.markdown(
-        """
-        <div style="
-            padding: 0.4rem 0 1.1rem 0;
-            text-align: center;
-        ">
-            <div style="
-                font-size: 3rem;
-                filter: drop-shadow(
-                    0 0 12px #4f46e5
-                );
-            ">
-                📈
-            </div>
-
-            <div style="
-                font-weight: 850;
-                font-size: 1.15rem;
-                letter-spacing: 0.04em;
-            ">
-                RETENTION
-                <br>
-                INTELLIGENCE
-            </div>
-
-            <div style="
-                color: #818cf8;
-                font-size: 0.68rem;
-                margin-top: 0.35rem;
-            ">
-                AI-POWERED PLATFORM
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
 
 navigation.run()
 
+
+# ============================================================
+# FOOTER
+# ============================================================
+
 st.markdown(
     """
-    <div class="footer">
-        AI-Powered Customer Retention Intelligence Platform
-        &nbsp; | &nbsp;
-        Built with Python, Machine Learning, and Streamlit
-    </div>
+<div class="footer">
+    AI-Powered Customer Retention Intelligence Platform
+    &nbsp; | &nbsp;
+    Built with Python, Machine Learning, and Streamlit
+</div>
     """,
-    unsafe_allow_html=True
+    unsafe_allow_html=True,
 )
-'''
-
-with open(
-    APP_FILE_PATH,
-    "w",
-    encoding="utf-8"
-) as file:
-    file.write(app_content)
-
-print("New SaaS-style homepage created successfully.")
-print(APP_FILE_PATH)
-
-
-import py_compile
-
-try:
-    py_compile.compile(
-        APP_FILE_PATH,
-        doraise=True
-    )
-
-    print("✓ New app.py syntax validation passed.")
-
-except py_compile.PyCompileError as error:
-    print("✗ Syntax validation failed.")
-    print(error)
