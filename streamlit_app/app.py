@@ -1387,9 +1387,8 @@ navigation.run()
 st.markdown(
     """
 <div class="footer">
-    AI-Powered Customer Retention Intelligence Platform
-    &nbsp; | &nbsp;
-    Built with Python, Machine Learning, and Streamlit
+    © 2026 <strong>Retention Intelligence Platform</strong><br>
+    Powered by Artificial Intelligence • Machine Learning • Business Intelligence
 </div>
     """,
     unsafe_allow_html=True,
