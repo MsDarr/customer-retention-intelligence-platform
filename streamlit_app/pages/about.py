@@ -1,3 +1,5 @@
+from os import link
+
 import streamlit as st
 
 from utils.data_loader import load_model_assets
@@ -10,6 +12,16 @@ from utils.data_loader import load_model_assets
 def apply_about_styles() -> None:
     """Apply styling used only on the About page."""
 
+    st.markdown(
+      """
+    <link
+href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded"
+rel="stylesheet">
+        """,
+        unsafe_allow_html=True,
+    )
+
+    # CSS
     st.markdown(
         """
 <style>
@@ -172,26 +184,68 @@ def apply_about_styles() -> None:
     font-size: 0.76rem;
 }
 
-.capability-card {
-    min-height: 205px;
-    height: 100%;
+.capability-card{
+    padding:1.6rem;
+    border-radius:20px;
+    border:1px solid #263554;
+    background:linear-gradient(
+        160deg,
+        rgba(24,37,62,.96),
+        rgba(11,20,37,.96)
+    );
+    transition:.25s;
+}
 
-    padding: 1.2rem;
+.capability-card:hover{
+    transform:translateY(-6px);
+    border-color:#6366f1;
+    box-shadow:0 18px 40px rgba(99,102,241,.18);
+}
 
-    border: 1px solid rgba(71, 85, 105, 0.55);
-    border-radius: 17px;
+.capability-icon{
+    width:60px;
+    height:60px;
 
-    background:
-        radial-gradient(
-            circle at 80% 0%,
-            rgba(99, 102, 241, 0.12),
-            transparent 35%
-        ),
-        linear-gradient(
-            155deg,
-            rgba(24, 37, 62, 0.98),
-            rgba(9, 18, 34, 0.98)
-        );
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    margin-bottom:1.25rem;
+
+    border-radius:18px;
+
+    background:linear-gradient(
+        135deg,
+        #4f46e5,
+        #7c3aed
+    );
+
+    color:white;
+}
+
+.capability-icon .material-symbols-rounded{
+    font-size:30px;
+    font-family:"Material Symbols Rounded";
+    font-weight:normal;
+    font-style:normal;
+}
+
+.capability-title{
+    margin-bottom:.8rem;
+
+    font-size:1.25rem;
+    font-weight:800;
+
+    color:white;
+}
+
+.capability-description{
+
+    font-size:.95rem;
+
+    line-height:1.8;
+
+    color:#b7c3d6;
 }
 
 .capability-icon {
@@ -284,7 +338,6 @@ def apply_about_styles() -> None:
         unsafe_allow_html=True,
     )
 
-
 # ============================================================
 # SMALL COMPONENTS
 # ============================================================
@@ -337,12 +390,14 @@ def capability_card(
     """Render one platform capability card."""
 
     html = (
-        '<div class="capability-card">'
-        f'<div class="capability-icon">{icon}</div>'
-        f'<div class="capability-title">{title}</div>'
-        f'<div class="capability-text">{description}</div>'
-        '</div>'
-    )
+    '<div class="capability-card">'
+    '<div class="capability-icon">'
+    f'<span class="material-symbols-rounded">{icon}</span>'
+    '</div>'
+    f'<div class="capability-title">{title}</div>'
+    f'<div class="capability-text">{description}</div>'
+    '</div>'
+)
 
     st.markdown(
         html,
@@ -495,32 +550,32 @@ def render() -> None:
 
     capabilities = [
         (
-            "🔮",
+            "psychology",
             "Customer Prediction",
             "Generates real-time churn probabilities for individual customer profiles.",
         ),
         (
-            "🛡️",
+            "shield",
             "Risk Intelligence",
             "Classifies and ranks customers according to their likelihood of churn.",
         ),
         (
-            "🤖",
+            "lightbulb",
             "AI Recommendations",
             "Produces personalized retention actions and engagement strategies.",
         ),
         (
-            "💹",
+            "monitoring",
             "Revenue Intelligence",
             "Estimates revenue exposure, expected loss, and recovery opportunities.",
         ),
         (
-            "📊",
+            "dashboard",
             "Executive Analytics",
             "Provides decision-ready KPIs and customer-retention performance views.",
         ),
         (
-            "📄",
+            "description",
             "Business Reporting",
             "Supports downloadable operational and executive intelligence reports.",
         ),
