@@ -1,3 +1,5 @@
+from os import link
+
 import pandas as pd
 import plotly.express as px
 import streamlit as st
@@ -18,14 +20,13 @@ from utils.data_loader import (
     load_predictions,
 )
 
-
 # ============================================================
 # PAGE CONFIGURATION
 # ============================================================
 
 st.set_page_config(
     page_title="Retention Intelligence",
-    page_icon="📈",
+    page_icon=" ",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -41,9 +42,44 @@ def apply_custom_style() -> None:
     st.markdown(
         """
 <style>
+@import url(
+    "https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded"
+);
+
+.material-symbols-rounded {
+    font-family: "Material Symbols Rounded";
+    font-weight: normal;
+    font-style: normal;
+    font-size: 1.55rem;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    direction: ltr;
+    font-feature-settings: "liga";
+    -webkit-font-feature-settings: "liga";
+    -webkit-font-smoothing: antialiased;
+}
+.material-symbols-rounded {S
+    font-family: "Material Symbols Rounded";
+    font-weight: normal;
+    font-style: normal;
+    font-size: 1.6rem;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    direction: ltr;
+    font-feature-settings: "liga";
+    -webkit-font-feature-settings: "liga";
+    -webkit-font-smoothing: antialiased;
+}
+
 
 /* =========================================================
-   GLOBAL APPLICATION
+   GLOBAL APPLICATION 
    ========================================================= */
 
 .stApp {
@@ -220,7 +256,7 @@ def apply_custom_style() -> None:
     position: relative;
     overflow: hidden;
 
-    min-height: 330px;
+    min-height: 420px;
     padding: 3rem 3.2rem;
 
     border: 1px solid rgba(99, 102, 241, 0.30);
@@ -228,56 +264,67 @@ def apply_custom_style() -> None:
 
     background:
         radial-gradient(
-            circle at 86% 15%,
-            rgba(124, 58, 237, 0.22),
-            transparent 34%
+            circle at 82% 36%,
+            rgba(37, 99, 235, 0.28),
+            transparent 24%
         ),
+        radial-gradient(
+        circle at 74% 48%,
+        rgba(126, 34, 206, 0.18),
+        transparent 35%
+        )
         linear-gradient(
             135deg,
-            #0a1328 0%,
-            #0d1733 52%,
-            #241052 100%
+            #091226 0%,
+            #0b1530 48%,
+            #1b0d4a 100%
         );
 
     box-shadow:
-        0 24px 60px rgba(0, 0, 0, 0.32),
+        0 25px 65px rgba(0, 0, 0, 0.34),
         inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
-.hero-shell::after {
+.hero-shell::before {
     content: "";
 
     position: absolute;
-    width: 440px;
-    height: 440px;
+    width: 420px;
+    height: 420px;
 
-    right: -130px;
-    top: -170px;
+    right: -80px;
+    top: -110px;
 
     border-radius: 50%;
 
     background:
         radial-gradient(
             circle,
-            rgba(96, 165, 250, 0.16),
-            rgba(124, 58, 237, 0.09) 45%,
-            transparent 72%
+            rgba(96, 165, 250, 0.20),
+            rgba(124, 58, 237, 0.08) 45%,
+            transparent 68%
         );
+    filter: blur(5px);
 }
 
-.hero-content {
+.hero-grid {
     position: relative;
     z-index: 2;
+    display: grid;
+    grid-template-columns: 1.5fr 0.8fr;
+    align-items: center;
+    gap: 2rem;
 }
 
 .hero-badge {
     display: inline-flex;
     align-items: center;
-
+    gap: 0.55rem;
+    
     width: fit-content;
 
-    padding: 0.50rem 0.90rem;
-    margin-bottom: 1.35rem;
+    padding: 0.55rem 0.95rem;
+    margin-bottom: 1.25rem;
 
     border: 1px solid rgba(129, 140, 248, 0.40);
     border-radius: 999px;
@@ -286,21 +333,21 @@ def apply_custom_style() -> None:
 
     color: #a5b4fc;
 
-    font-size: 0.74rem;
-    font-weight: 760;
-    letter-spacing: 0.08em;
+    font-size: 0.78rem;
+    font-weight: 750;
+    letter-spacing: 0.06em;
 }
 
 .hero-title {
-    max-width: 980px;
+    max-width: 780px;
     margin: 0;
 
     color: #f8fafc;
 
-    font-size: clamp(2.6rem, 4.8vw, 4.8rem);
+    font-size: clamp(2.5rem, 4.8vw, 4.4rem);
     font-weight: 900;
 
-    line-height: 1.03;
+    line-height: 1.04;
     letter-spacing: -0.055em;
 }
 
@@ -309,8 +356,8 @@ def apply_custom_style() -> None:
         linear-gradient(
             90deg,
             #3b82f6 0%,
-            #6366f1 40%,
-            #a855f7 74%,
+            #6366f1 38%,
+            #a855f7 72%,
             #d946ef 100%
         );
 
@@ -320,17 +367,33 @@ def apply_custom_style() -> None:
 }
 
 .hero-description {
-    max-width: 760px;
+    max-width: 670px;
 
-    margin-top: 1.5rem;
+    margin-top: 1.35rem;
     padding-left: 1.15rem;
 
     border-left: 3px solid #7c3aed;
 
     color: #cbd5e1;
 
-    font-size: 1.06rem;
+    font-size: 1.08rem;
     line-height: 1.75;
+}
+.hero-benefit {
+    padding: 0.65rem 0.95rem;
+    border: 1px solid rgba(71, 85, 105, 0.65);
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.62);
+    color: #dbeafe;
+    font-size: 0.82rem;
+    font-weight: 650;
+}
+.hero-visual {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
 }
 
 .hero-buttons {
@@ -668,8 +731,6 @@ def apply_custom_style() -> None:
         """,
         unsafe_allow_html=True,
     )
-
-
 # ============================================================
 # HELPER COMPONENTS
 # ============================================================
@@ -694,23 +755,40 @@ def metric_card(
     value: str,
     caption: str,
 ) -> None:
-    """Render one KPI card."""
+    """Render one KPI with Material icon."""
+
+    card_html = (
+        '<div class="kpi-card">'
+        '<div class="kpi-top">'
+        '<div class="kpi-icon">'
+        f'<span class="material-symbols-rounded">{icon}</span>'
+        '</div>'
+        f'<div class="kpi-label">{label}</div>'
+        '</div>'
+        f'<div class="kpi-value">{value}</div>'
+        f'<div class="kpi-caption">{caption}</div>'
+        '</div>'
+    )
 
     st.markdown(
-        f"""
-<div class="kpi-card">
-    <div class="kpi-top">
-        <div class="kpi-icon">{icon}</div>
-        <div class="kpi-label">{label}</div>
-    </div>
-
-    <div class="kpi-value">{value}</div>
-    <div class="kpi-caption">{caption}</div>
-</div>
-        """,
+        card_html,
         unsafe_allow_html=True,
     )
 
+    #st.markdown(
+     #   f"""
+#<div class="kpi-card">
+ #   <div class="kpi-top">
+  #      <div class="kpi-icon">{icon}</div>
+   #     <div class="kpi-label">{label}</div>
+    #</div>
+
+    #<div class="kpi-value">{value}</div>
+    #<div class="kpi-caption">{caption}</div>
+#</div>
+ #       """,
+  #      unsafe_allow_html=True,
+   # )
 
 def module_card(
     icon: str,
@@ -718,26 +796,23 @@ def module_card(
     description: str,
     action: str,
 ) -> None:
-    """Render one platform-module card."""
+    """Render one platform-module card with a Material icon."""
 
-    st.markdown(
-        f"""
-<div class="module-card">
-    <div class="module-icon">{icon}</div>
-    <div class="module-title">{title}</div>
-
-    <div class="module-description">
-        {description}
-    </div>
-
-    <div class="module-action">
-        {action} →
-    </div>
-</div>
-        """,
-        unsafe_allow_html=True,
+    card_html = (
+        '<div class="module-card">'
+        '<div class="module-icon">'
+        f'<span class="material-symbols-rounded">{icon}</span>'
+        '</div>'
+        f'<div class="module-title">{title}</div>'
+        f'<div class="module-description">{description}</div>'
+        f'<div class="module-action">{action} →</div>'
+        '</div>'
     )
 
+    st.markdown(
+        card_html,
+        unsafe_allow_html=True,
+    )
 
 def get_model_accuracy(metadata: dict) -> float:
     """Read model accuracy safely from metadata."""
@@ -774,26 +849,8 @@ def render_home_hero() -> None:
 <div class="hero-shell">
     <div class="hero-content">
 
-        <div class="hero-badge">
-            ✦ PREMIUM AI PLATFORM
-        </div>
-
-        <h1 class="hero-title">
-            AI-Powered Customer
-            <br>
-            Retention
-            <span class="hero-gradient">
-                Intelligence Platform
-            </span>
-        </h1>
-
-        <div class="hero-description">
-            Predict customer churn, identify at-risk customers,
-            protect recurring revenue, and make faster decisions
-            using machine learning and business intelligence.
-        </div>
-
-    </div>
+<div class="hero-badge">✦ PREMIUM AI PLATFORM</div><h1 class="hero-title">AI-Powered Customer<br>Retention<span class="hero-gradient">Intelligence Platform</span></h1>
+<div class="hero-description">Predict customer churn, identify at-risk customers, protect recurring revenue, and make faster decisions using machine learning and business intelligence.</div></div>
 </div>
         """,
         unsafe_allow_html=True,
@@ -877,7 +934,7 @@ def render_home() -> None:
 
     with col1:
         metric_card(
-            "👥",
+            "groups",
             "Total Customers",
             f"{total_customers:,}",
             "Customer records analyzed",
@@ -885,7 +942,7 @@ def render_home() -> None:
 
     with col2:
         metric_card(
-            "⚠️",
+            "gpp_bad",
             "High-Risk Customers",
             f"{high_risk_customers:,}",
             (
@@ -896,7 +953,7 @@ def render_home() -> None:
 
     with col3:
         metric_card(
-            "💰",
+            "account_balance_wallet",
             "Revenue at Risk",
             f"${revenue_at_risk / 1_000_000:.2f}M",
             "Probability-weighted annual exposure",
@@ -904,7 +961,7 @@ def render_home() -> None:
 
     with col4:
         metric_card(
-            "🎯",
+            "analytics",
             "Model Accuracy",
             f"{model_accuracy:.1%}",
             model_name,
@@ -920,43 +977,42 @@ def render_home() -> None:
     )
 
     modules = [
-        (
-            "🔮",
-            "Customer Prediction",
-            "Generate real-time churn probabilities for individual customer profiles.",
-            "Predict Now",
-        ),
-        (
-            "🛡️",
-            "Risk Scoring",
-            "Identify, rank, and prioritize customers according to churn risk.",
-            "View Risk Scores",
-        ),
-        (
-            "🤖",
-            "AI Recommendations",
-            "Generate personalized retention actions offers, and communication channels.",
-            "Get Recommendations",
-        ),
-        (
-            "💹",
-            "Revenue Intelligence",
-            "Estimate revenue exposure, expected loss, and potential recovery.",
-            "Explore Revenue",
-        ),
-        (
-            "📈",
-            "Executive Dashboard",
-            "Review business KPIs and customer-retention performance.",
-            "View Dashboard",
-        ),
-        (
-            "📄",
-            "Reports",
-            "Preview and download operational customer-intelligence reports.",
-            "View Reports",
-        ),
-    ]
+    (
+        "psychology","Customer Prediction",
+        "Generate real-time churn probabilities for individual customer profiles.",
+        "Predict Now",
+    ),
+    (
+        "shield",
+        "Risk Scoring",
+        "Identify, rank, and prioritize customers according to churn risk.",
+        "View Risk Scores",
+    ),
+    (
+        "smart_toy",
+        "AI Recommendations",
+        "Generate personalized retention actions and recommendations.",
+        "Get Recommendations",
+    ),
+    (
+        "monitoring",
+        "Revenue Intelligence",
+        "Estimate revenue exposure and potential customer loss.",
+        "Explore Revenue",
+    ),
+    (
+        "dashboard",
+        "Executive Dashboard",
+        "Review executive KPIs and customer retention performance.",
+        "View Dashboard",
+    ),
+    (
+        "description",
+        "Reports",
+        "Preview and download customer intelligence reports.",
+        "View Reports",
+    ),
+]
 
     module_columns = st.columns(6)
 
@@ -966,55 +1022,6 @@ def render_home() -> None:
     ):
         with column:
             module_card(*module)
-# ---------------------------------------------------------------------
-# Platform modules CSS
-# ---------------------------------------------------------------------
-
-    st.markdown(
-    """
-<style>
-.module-card {
-    min-height: 290px;
-    padding: 22px 16px;
-    border: 1px solid rgba(108, 142, 204, 0.25);
-    border-radius: 18px;
-    background: rgba(23, 39, 67, 0.92);
-    display: flex;
-    flex-direction: column;
-    box-sizing: border-box;
-}
-
-.module-icon {
-    font-size: 30px;
-    margin-bottom: 20px;
-}
-
-.module-title {
-    color: #ffffff;
-    font-size: 16px;
-    font-weight: 700;
-    line-height: 1.35;
-    margin-bottom: 20px;
-}
-
-.module-description {
-    color: #aebbd1;
-    font-size: 13px;
-    line-height: 1.6;
-    flex-grow: 1;
-}
-
-.module-action {
-    color: #8ea7ff;
-    font-size: 13px;
-    font-weight: 700;
-    margin-top: 20px;
-}
-</style>
-""",
-    unsafe_allow_html=True,
-)
-
 
     # --------------------------------------------------------
     # Key business insights
@@ -1254,9 +1261,10 @@ def render_home() -> None:
     st.markdown(
         """
 <div class="cta-box">
-    <div class="cta-title">🚀 Ready to reduce churn and protect revenue?</div>
-    <div class="cta-text">Use AI-powered customer intelligence to identify risk early and take targeted action.</div>
-</div>
+    <div class="cta-title">
+        🚀 Ready to reduce churn and protect revenue?
+    </div>
+<div class="cta-text">Use AI-powered customer intelligence to identify risk early and take targeted action.</div></div>
         """,
         unsafe_allow_html=True,
     )
